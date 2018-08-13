@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten"
 )
 
@@ -28,7 +26,6 @@ func NewPlayer() *Player {
 	p.X = 32
 	p.Y = 32
 	p.Sprite = GetImage("Player.png")
-	fmt.Println(p.Sprite)
 	return &p
 
 }
