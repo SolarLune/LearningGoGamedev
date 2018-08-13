@@ -10,6 +10,8 @@ import (
 var screenW = 320
 var screenH = 180
 
+var world = NewWorld()
+
 func update(screen *ebiten.Image) error {
 
 	var finishedState error
@@ -17,6 +19,8 @@ func update(screen *ebiten.Image) error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		finishedState = errors.New("Exit")
 	}
+
+	world.Update()
 
 	return finishedState
 }
