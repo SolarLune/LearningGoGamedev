@@ -7,6 +7,12 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+const (
+	LevelEmpty = iota
+	LevelSolid
+	LevelPlayerStart
+)
+
 type World struct {
 	PlayerObj *Player
 	Level     int
@@ -38,9 +44,7 @@ func (w *World) ResetWorld() {
 			wx := x * 16
 			wy := y * 16
 
-			cr, cg, cb, _ := levelMap.At(x, y).RGBA()
-
-			if cr == 0 && cg == 0 && cb >= 65535 {
+			if w.CodeAt(x, y) == LevelPlayerStart {
 				w.PlayerObj.X = float64(wx)
 				w.PlayerObj.Y = float64(wy)
 			}
@@ -48,6 +52,22 @@ func (w *World) ResetWorld() {
 		}
 
 	}
+
+}
+
+func (w *World) CodeAt(x, y int) int {
+
+	levelMap := GetImage("levels/Level" + strconv.Itoa(w.Level) + ".png")
+
+	cr, cg, cb, _ := levelMap.At(x, y).RGBA()
+
+	if cr == 0 && cg == 0 && cb == 0 {
+		return LevelSolid
+	} else if cr == 0 && cg == 0 && cb == 65535 {
+		return LevelPlayerStart
+	}
+
+	return LevelEmpty
 
 }
 
@@ -64,12 +84,15 @@ func (w *World) DrawTiles(screen *ebiten.Image) {
 			wx := x * 16
 			wy := y * 16
 
-			cr, cg, cb, _ := levelMap.At(x, y).RGBA()
-
 			r := image.Rectangle{}
 
-			if cr == 0 && cg == 0 && cb == 0 {
+			if w.CodeAt(x, y) == LevelSolid {
 				r = image.Rect(0, 0, 16, 16)
+
+				if w.CodeAt(x, y-1) == LevelSolid {
+					r = image.Rect(0, 16, 16, 32)
+				}
+
 				drawOptions.SourceRect = &r
 			}
 
