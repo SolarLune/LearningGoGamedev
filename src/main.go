@@ -20,7 +20,7 @@ func update(screen *ebiten.Image) error {
 		finishedState = errors.New("Exit")
 	}
 
-	world.Update()
+	world.Update(screen)
 
 	return finishedState
 }
