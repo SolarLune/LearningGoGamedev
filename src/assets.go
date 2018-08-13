@@ -8,17 +8,17 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 )
 
-var _assets map[string]interface{} = make(map[string]interface{}, 0)
+var assets map[string]interface{} = make(map[string]interface{}, 0)
 
 func GetImage(imageName string) *ebiten.Image {
 
-	_, exists := _assets[imageName]
+	_, exists := assets[imageName]
 
 	if !exists {
 
 		var err error
 
-		_assets[imageName], _, err = ebitenutil.NewImageFromFile("assets/graphics/"+imageName, ebiten.FilterLinear)
+		assets[imageName], _, err = ebitenutil.NewImageFromFile("assets/graphics/"+imageName, ebiten.FilterLinear)
 
 		if err != nil {
 
@@ -28,7 +28,7 @@ func GetImage(imageName string) *ebiten.Image {
 
 	}
 
-	img := _assets[imageName].(*ebiten.Image)
+	img := assets[imageName].(*ebiten.Image)
 	return img
 
 }
