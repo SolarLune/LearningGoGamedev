@@ -118,6 +118,8 @@ func (w *World) DrawTiles(screen *ebiten.Image) {
 
 func (w *World) Update(screen *ebiten.Image) {
 
+	UpdateInputMap()
+
 	w.DrawTiles(screen)
 
 	w.PlayerObj.Update()
