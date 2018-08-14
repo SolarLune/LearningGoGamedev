@@ -16,12 +16,14 @@ const (
 type World struct {
 	PlayerObj *Player
 	Level     int
+	LevelData [][]int
 }
 
 func NewWorld() *World {
 
 	w := World{}
 	w.Level = 1
+	w.LevelData = make([][]int, 0)
 	w.ResetWorld()
 	return &w
 
@@ -29,25 +31,39 @@ func NewWorld() *World {
 
 func (w *World) ResetWorld() {
 
-	lvl := "levels/Level" + strconv.Itoa(w.Level) + ".png"
-
 	assets = make(map[string]interface{}, 0)
 
-	levelMap := GetImage(lvl)
+	levelMap := GetImage("levels/Level" + strconv.Itoa(w.Level) + ".png")
 
 	w.PlayerObj = NewPlayer()
 
+	// Populate the World's LevelData array with values
+
 	for y := 0; y < levelMap.Bounds().Dy(); y++ {
+
+		w.LevelData = append(w.LevelData, []int{})
 
 		for x := 0; x < levelMap.Bounds().Dx(); x++ {
 
 			wx := x * 16
 			wy := y * 16
 
-			if w.CodeAt(x, y) == LevelPlayerStart {
+			cr, cg, cb, _ := levelMap.At(x, y).RGBA()
+
+			cellCode := 0
+
+			if cr == 0 && cg == 0 && cb == 0 {
+				cellCode = LevelSolid
+			} else if cr == 0 && cg == 0 && cb == 65535 {
+				cellCode = LevelPlayerStart
+			}
+
+			if cellCode == LevelPlayerStart {
 				w.PlayerObj.X = float64(wx)
 				w.PlayerObj.Y = float64(wy)
 			}
+
+			w.LevelData[y] = append(w.LevelData[y], cellCode)
 
 		}
 
@@ -57,29 +73,21 @@ func (w *World) ResetWorld() {
 
 func (w *World) CodeAt(x, y int) int {
 
-	levelMap := GetImage("levels/Level" + strconv.Itoa(w.Level) + ".png")
-
-	cr, cg, cb, _ := levelMap.At(x, y).RGBA()
-
-	if cr == 0 && cg == 0 && cb == 0 {
+	if x < 0 || x >= len(w.LevelData[0]) || y < 0 || y >= len(w.LevelData) {
 		return LevelSolid
-	} else if cr == 0 && cg == 0 && cb == 65535 {
-		return LevelPlayerStart
 	}
 
-	return LevelEmpty
+	return w.LevelData[y][x]
 
 }
 
 func (w *World) DrawTiles(screen *ebiten.Image) {
 
-	levelMap := GetImage("levels/Level" + strconv.Itoa(w.Level) + ".png")
-
 	drawOptions := ebiten.DrawImageOptions{}
 
-	for y := 0; y < levelMap.Bounds().Dy()+1; y++ {
+	for y := 0; y < len(w.LevelData); y++ {
 
-		for x := 0; x < levelMap.Bounds().Dx(); x++ {
+		for x := 0; x < len(w.LevelData[y]); x++ {
 
 			wx := x * 16
 			wy := y * 16
